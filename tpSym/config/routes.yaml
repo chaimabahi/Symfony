@@ -1,3 +1,21 @@
-home:
+article_list:
     path: /
     controller: App\Controller\IndexController::home
+
+new_article:
+    path: /article/new
+    controller: App\Controller\IndexController::new
+
+edit_article:
+    path: /article/edit/{id}
+    controller: App\Controller\IndexController::edit
+    methods: [GET, POST]
+
+article_show:
+    path: /article/{id}
+    controller: App\Controller\IndexController::show
+    
+delete_article:
+    path: /article/delete/{id}
+    controller: App\Controller\IndexController::delete
+    methods: [POST]
