@@ -28,7 +28,11 @@ class Article
         value: 0,
         message: "Le prix d’un article ne doit pas être égal à 0"
     )]
-    private ?string $prix = null; // Keep prix as string to handle precision properly
+    private ?string $prix = null; // Consider keeping prix as string to handle precision properly
+
+    #[ORM\ManyToOne(inversedBy: 'articles')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Category $category = null;
 
     public function getId(): ?int
     {
@@ -43,7 +47,6 @@ class Article
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -55,7 +58,17 @@ class Article
     public function setPrix(string $prix): static // Keep parameter type as string
     {
         $this->prix = $prix;
+        return $this;
+    }
 
+    public function getCategory(): ?Category // Corrected method name to match naming conventions
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): static // Corrected method name to match naming conventions
+    {
+        $this->category = $category;
         return $this;
     }
 }

@@ -19,3 +19,7 @@ delete_article:
     path: /article/delete/{id}
     controller: App\Controller\IndexController::delete
     methods: [POST]
+new_category:
+    path: /category/newCat
+    controller: App\Controller\IndexController::newCategory
+    methods: [GET, POST]

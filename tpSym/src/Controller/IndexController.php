@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Article;
+use App\Form\CategoryType;
+use App\Entity\Category;
 use App\Form\ArticleType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -63,24 +65,24 @@ class IndexController extends AbstractController
  /**
      * @Route("/article/new", name="new_article", methods={"GET", "POST"})
      */
-    public function new(Request $request): Response
-    {
-        $article = new Article();
-        $form = $this->createForm(ArticleType::class, $article); // Use ArticleType form class
-        $form->handleRequest($request);
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
+{
+    $article = new Article();
+    $form = $this->createForm(ArticleType::class, $article);
+    $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $article = $form->getData();
-            $this->entityManager->persist($article);
-            $this->entityManager->flush();
+    if ($form->isSubmitted() && $form->isValid()) {
+        $entityManager->persist($article);
+        $entityManager->flush();
 
-            return $this->redirectToRoute('article_list');
-        }
-
-        return $this->render('articles/new.html.twig', [
-            'form' => $form->createView(),
-        ]);
+        return $this->redirectToRoute('article_list');
     }
+
+    return $this->render('articles/new.html.twig', [
+        'form' => $form->createView(),
+    ]);
+}
+
 
 /**
      * @Route("/article/edit/{id}", name="edit_article", methods={"GET", "POST"})
@@ -143,6 +145,24 @@ class IndexController extends AbstractController
 
         // Redirect after deletion
         return $this->redirectToRoute('article_list');
+    }
+    #[Route("/category/newCat", name:"new_category", methods:["GET", "POST"])]
+    public function newCategory(Request $request): Response
+    {
+        $category = new Category();
+        $form = $this->createForm(CategoryType::class, $category);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Use the injected entity manager
+            $this->entityManager->persist($category);
+            $this->entityManager->flush();
+
+            // Redirect to the category list or article list after saving
+            return $this->redirectToRoute('article_list'); // Change this to an appropriate route
+        }
+
+        return $this->render('articles/newCategory.html.twig', ['form' => $form->createView()]);
     }
 
 
