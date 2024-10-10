@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Article;
+use App\Form\ArticleType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -59,59 +60,60 @@ class IndexController extends AbstractController
         return new Response('Articles enregistrés avec ids: ' . $article1->getId() . ', ' . $article2->getId() . ', ' . $article3->getId());
     }
 
-    #[Route('/article/new', name: 'new_article', methods: ['GET', 'POST'])]
-public function new(Request $request): Response
-{
-    $article = new Article();
-    $form = $this->createFormBuilder($article)
-        ->add('nom', TextType::class)
-        ->add('prix', TextType::class)
-        ->add('save', SubmitType::class, [
-            'label' => 'Créer'
-        ])
-        ->getForm();
+ /**
+     * @Route("/article/new", name="new_article", methods={"GET", "POST"})
+     */
+    public function new(Request $request): Response
+    {
+        $article = new Article();
+        $form = $this->createForm(ArticleType::class, $article); // Use ArticleType form class
+        $form->handleRequest($request);
 
-    $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $article = $form->getData();
+            $this->entityManager->persist($article);
+            $this->entityManager->flush();
 
-    if ($form->isSubmitted() && $form->isValid()) {
-        $article = $form->getData();
+            return $this->redirectToRoute('article_list');
+        }
 
-        $this->entityManager->persist($article);
-        $this->entityManager->flush();
-
-        return $this->redirectToRoute('article_list');
+        return $this->render('articles/new.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 
-    return $this->render('articles/index.html.twig', [
-        'form' => $form->createView(),
-    ]);
-}
-#[Route('/article/edit/{id}', name: 'edit_article', methods: ['GET', 'POST'])]
-public function edit(Request $request, $id): Response
-{
-    $article = $this->entityManager->getRepository(Article::class)->find($id);
+/**
+     * @Route("/article/edit/{id}", name="edit_article", methods={"GET", "POST"})
+     */
+    public function edit(Request $request, $id): Response
+    {
+        // Find the article by its ID
+        $article = $this->entityManager->getRepository(Article::class)->find($id);
 
-    if (!$article) {
-        throw $this->createNotFoundException('Article not found');
+        // If the article is not found, throw an exception
+        if (!$article) {
+            throw $this->createNotFoundException(
+                'No article found for id ' . $id
+            );
+        }
+
+        // Create the form using ArticleType
+        $form = $this->createForm(ArticleType::class, $article);
+        $form->handleRequest($request);
+
+        // If form is submitted and valid, flush the changes to the database
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->flush();
+
+            // Redirect to the article list after saving the changes
+            return $this->redirectToRoute('article_list');
+        }
+
+        // Render the edit form view
+        return $this->render('articles/edit.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
-
-    $form = $this->createFormBuilder($article)
-        ->add('nom', TextType::class)
-        ->add('prix', TextType::class)
-        ->add('save', SubmitType::class, [
-            'label' => 'Modifier'
-        ])
-        ->getForm();
-
-    $form->handleRequest($request);
-    
-    if ($form->isSubmitted() && $form->isValid()) {
-        $this->entityManager->flush(); // Only flush the changes
-        return $this->redirectToRoute('article_list');
-    }
-
-    return $this->render('articles/edit.html.twig', ['form' => $form->createView()]);
-}
 
 #[Route('/article/{id}', name: 'article_show')]
     public function show($id): Response
