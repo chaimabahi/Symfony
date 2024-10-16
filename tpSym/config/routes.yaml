@@ -5,21 +5,28 @@ article_list:
 new_article:
     path: /article/new
     controller: App\Controller\IndexController::new
+    methods: [GET, POST]  
 
 edit_article:
     path: /article/edit/{id}
     controller: App\Controller\IndexController::edit
-    methods: [GET, POST]
+    methods: [GET, POST] 
 
 article_show:
     path: /article/{id}
     controller: App\Controller\IndexController::show
-    
+    methods: [GET]  
 delete_article:
     path: /article/delete/{id}
     controller: App\Controller\IndexController::delete
-    methods: [POST]
+    methods: [POST]  
+
 new_category:
     path: /category/newCat
     controller: App\Controller\IndexController::newCategory
+    methods: [GET, POST] 
+    
+article_par_cat:
+    path: /art_cat/
+    controller: App\Controller\IndexController::articlesParCategorie
     methods: [GET, POST]
